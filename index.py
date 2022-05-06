@@ -2,11 +2,21 @@ from re import M
 from time import sleep
 import pulsar
 import asyncio
+import configparser
+import io
+import yaml
 
 publicKeyPath = "./public.pem"
 privateKeyPath = "./private.pem"
 crypto_key_reader = pulsar.CryptoKeyReader(publicKeyPath, privateKeyPath)
-client = pulsar.Client('pulsar://localhost:6650')
+
+
+with open("conf.yml", 'r') as f:
+    valuesYaml = yaml.load(f, Loader=yaml.FullLoader)
+#env
+print(valuesYaml['host'])
+
+client = pulsar.Client(valuesYaml['host'])
 
 async def consumer_a():
     consumer = client.subscribe(topic='encryption', subscription_name='sub1', crypto_key_reader=crypto_key_reader)
@@ -32,8 +42,5 @@ async def main():
     print("222")
     
     client.close()
-
-
-
 
 asyncio.run(main())
